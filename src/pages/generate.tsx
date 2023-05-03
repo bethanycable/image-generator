@@ -6,6 +6,7 @@ import React, { useState } from "react";
 import { api } from "~/utils/api";
 import { signIn, signOut, useSession } from "next-auth/react";
 import Button from "~/component/Button";
+import Image from "next/image";
 
 
 const GeneratePage: NextPage = () => {
@@ -13,19 +14,22 @@ const GeneratePage: NextPage = () => {
   const [form, setForm] = useState({
     prompt: ""
   });
+  const [imageUrl, setImageUrl] = useState('')
 
   const generateIcon = api.generate.generateIcon.useMutation({
     onSuccess(data) {
       console.log("mutation finished", data)
+      if(!data.imageUrl) return;
+      setImageUrl(data.imageUrl);
     }
   })
 
   function handleFormSubmit(e: React.FormEvent) {
     e.preventDefault()
-    //TODO: submit the form data to the backend
     generateIcon.mutate({
       prompt: form.prompt,
     });
+    setForm({prompt: ""});
   }
 
   function updateForm(key: string) {
@@ -33,7 +37,7 @@ const GeneratePage: NextPage = () => {
       setForm({
         ...form,
         [key]: e.target.value
-      })
+      });
     }
   }
 
@@ -80,6 +84,13 @@ const GeneratePage: NextPage = () => {
 
           <Button className="rounded bg-blue-400 px-2 py-4 hover:bg-blue-500">Submit</Button>
         </form>
+
+        <Image
+          src={imageUrl} 
+          alt="ai generated image"
+          width="100"
+          height="100"
+        />
       </main>
     </>
   );

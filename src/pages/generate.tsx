@@ -86,7 +86,7 @@ const GeneratePage: NextPage = () => {
         </form>
 
         <Image
-          src={`data:image/png;base64, ${imageUrl}`} 
+          src={imageUrl} 
           alt="ai generated image"
           width="150"
           height="150"

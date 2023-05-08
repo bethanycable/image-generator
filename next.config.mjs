@@ -8,7 +8,10 @@ await import("./src/env.mjs");
 const config = {
   reactStrictMode: true,
   images: {
-    domains: ["oaidalleapiprodscus.blob.core.windows.net"],
+    domains: [
+      "oaidalleapiprodscus.blob.core.windows.net",
+      "bookcovergenerator.s3.amazonaws.com",
+    ],
   },
   /**
    * If you have `experimental: { appDir: true }` set, then you must comment the below `i18n` config

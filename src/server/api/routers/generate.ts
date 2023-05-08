@@ -5,7 +5,6 @@ import {
 } from "~/server/api/trpc";
 
 import AWS from "aws-sdk"
-import { Image } from 'next/image';
 import { TRPCError } from "@trpc/server";
 import { b64Image } from "~/data/b64image";
 import { env } from "process";
@@ -19,6 +18,7 @@ const s3 = new AWS.S3({
   region: "us-east-1",
 });
 
+const BUCKET_NAME = "bookcovergenerator"
 
 const configuration = new Configuration ({
   apiKey: env.DALLE_API_KEY,
@@ -82,7 +82,7 @@ export const generateRouter = createTRPCRouter({
       })
 
       await s3.putObject({
-        Bucket: 'bookcovergenerator',
+        Bucket: BUCKET_NAME,
         Body: Buffer.from(b64EncodedImage!, "base64"),
         Key: image.id, 
 
@@ -94,7 +94,7 @@ export const generateRouter = createTRPCRouter({
 
 
       return {
-        imageLink: b64EncodedImage,
+        imageLink: `https://${BUCKET_NAME}.s3.amazonaws.com/${image.id}`,
       }
     })
 });

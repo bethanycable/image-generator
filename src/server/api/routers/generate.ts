@@ -4,9 +4,21 @@ import {
   protectedProcedure,
 } from "~/server/api/trpc";
 
+import AWS from "aws-sdk"
+import { Image } from 'next/image';
 import { TRPCError } from "@trpc/server";
+import { b64Image } from "~/data/b64image";
 import { env } from "process";
 import { z } from "zod";
+
+const s3 = new AWS.S3({
+  credentials: {
+    accessKeyId: env.ACCESS_KEY_ID,
+    secretAccessKey: env.SECRET_ACCESS_KEY,
+  },
+  region: "us-east-1",
+});
+
 
 const configuration = new Configuration ({
   apiKey: env.DALLE_API_KEY,
@@ -17,15 +29,16 @@ const openai = new OpenAIApi(configuration)
 async function generateIcon(prompt: string): Promise<string | undefined> { //This will take an array of string urls eventually
   if(env.DALLE_MOCK === "true") {
     // return "https://images.pexels.com/photos/381739/pexels-photo-381739.jpeg?cs=srgb&dl=pexels-sevenstorm-juhaszimrus-381739.jpg&fm=jpg"
-    return "https://oaidalleapiprodscus.blob.core.windows.net/private/org-TXpy72gAPZZFIFZaLpz0qsgk/user-eZCRFpREPtVfgUMbI9GcnX8T/img-vMsxwvGowvCSfou5dwhLlJOJ.png?st=2023-05-03T00%3A28%3A11Z&se=2023-05-03T02%3A28%3A11Z&sp=r&sv=2021-08-06&sr=b&rscd=inline&rsct=image/png&skoid=6aaadede-4fb3-4698-a8f6-684d7786b067&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2023-05-02T19%3A51%3A51Z&ske=2023-05-03T19%3A51%3A51Z&sks=b&skv=2021-08-06&sig=9nWtXRup6L1D9y01jVLfjUTmHf46PXr2Ap5vWVsWokk%3D"
+    return b64Image;
   } else {
     const response = await openai.createImage({
       prompt,
       n: 1,
-      size: "1024x1024",
+      size: "512x512",
+      response_format: "b64_json",
     });
 
-    return response.data.data[0]?.url;
+    return response.data.data[0]?.b64_json;
   }
 }
 
@@ -59,10 +72,29 @@ export const generateRouter = createTRPCRouter({
         })
       }
 
-      const responseUrl =  await generateIcon(input.prompt)
+      const b64EncodedImage = await generateIcon(input.prompt)
+
+      const image = await ctx.prisma.image.create({
+        data: {
+          prompt: input.prompt,
+          userId: ctx.session.user.id,
+        },
+      })
+
+      await s3.putObject({
+        Bucket: 'bookcovergenerator',
+        Body: Buffer.from(b64EncodedImage!, "base64"),
+        Key: image.id, 
+
+        ContentEncoding: "base64",
+        ContentType: "image/png"
+      }).promise();
+
+
+
 
       return {
-        imageUrl: responseUrl,
+        imageLink: b64EncodedImage,
       }
     })
 });

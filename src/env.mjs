@@ -27,6 +27,9 @@ export const env = createEnv({
     GOOGLE_CLIENT_SECRET: z.string(),
     DALLE_API_KEY: z.string(),
     DALLE_MOCK: z.string(),
+
+    ACCESS_KEY_ID: z.string(),
+    SECRET_ACCESS_KEY: z.string(),
   },
 
   /**
@@ -52,6 +55,9 @@ export const env = createEnv({
     GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
     DALLE_API_KEY: process.env.DALLE_API_KEY,
     DALLE_MOCK: process.env.DALLE_MOCK,
+
+    ACCESS_KEY_ID: process.env.ACCESS_KEY_ID,
+    SECRET_ACCESS_KEY: process.env.SECRET_ACCESS_KEY,
   },
 });
 // DISCORD_CLIENT_ID: process.env.DISCORD_CLIENT_ID,

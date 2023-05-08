@@ -18,9 +18,9 @@ const GeneratePage: NextPage = () => {
 
   const generateIcon = api.generate.generateIcon.useMutation({
     onSuccess(data) {
-      console.log("mutation finished", data)
-      if(!data.imageUrl) return;
-      setImageUrl(data.imageUrl);
+      // console.log("mutation finished", data)
+      if(!data.imageLink) return;
+      setImageUrl(data.imageLink);
     }
   })
 
@@ -86,10 +86,10 @@ const GeneratePage: NextPage = () => {
         </form>
 
         <Image
-          src={imageUrl} 
+          src={`data:image/png;base64, ${imageUrl}`} 
           alt="ai generated image"
-          width="100"
-          height="100"
+          width="150"
+          height="150"
         />
       </main>
     </>

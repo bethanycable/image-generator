@@ -7,7 +7,7 @@ import {
 import AWS from "aws-sdk"
 import { TRPCError } from "@trpc/server";
 import { b64Image } from "~/data/b64image";
-import { env } from "process";
+import { env } from "~/env.mjs";
 import { z } from "zod";
 
 const s3 = new AWS.S3({

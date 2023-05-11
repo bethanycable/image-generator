@@ -1,8 +1,10 @@
 import React from "react";
+import Spinner from "./Spinner";
 import clsx from "clsx";
 
 function Button(props: React.ComponentPropsWithoutRef<"button"> & {
   variant?: 'primary' | 'secondary';
+  isLoading?: boolean
 }) {
   const color = (props.variant ?? "primary") === "primary"
     ? "bg-blue-400 hover:bg-blue-500" 
@@ -11,8 +13,9 @@ function Button(props: React.ComponentPropsWithoutRef<"button"> & {
   return(
     <button 
       {...props} 
-      className={clsx("rounded px-4 py-2", color)}
+      className={clsx("flex items-center justify-center gap-2 rounded px-4 py-2 disabled:bg-gray-600", color)}
     >
+      {props.isLoading && <Spinner />}
       {props.children}
     </button>
   )

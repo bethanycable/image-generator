@@ -10,48 +10,52 @@ function Header () {
 
   const isLoggedIn = !!session.data;
 
-  return <header className="container mx-auto h-16 px-4 flex justify-between items-center dark:bg-grey-800">
-    <PrimaryLink href="/">Bs Cover Generator</PrimaryLink>
-    <ul>
-      <li>
-        <PrimaryLink href="/generate">Generate</PrimaryLink>
-      </li>
-    </ul>
-    <ul className="flex gap-4">
-      {isLoggedIn && (
-        <>
+  return (
+    <header className="dark:bg-gray-800">
+      <div className="container mx-auto flex justify-between items-center h-16 px-4">
+        <PrimaryLink href="/">Bs Cover Generator</PrimaryLink>
+        <ul>
           <li>
-            <Button 
-              onClick={() => {
-                buyCredits().catch(console.error);
-              }}
-            >
-              Buy Credits
-            </Button>
+            <PrimaryLink href="/generate">Generate</PrimaryLink>
           </li>
-          <li>
-            <Button 
-                variant="secondary"
+        </ul>
+        <ul className="flex gap-4">
+          {isLoggedIn && (
+            <>
+              <li>
+                <Button 
+                  onClick={() => {
+                    buyCredits().catch(console.error);
+                  }}
+                >
+                  Buy Credits
+                </Button>
+              </li>
+              <li>
+                <Button 
+                    variant="secondary"
+                    onClick={() => { 
+                      signOut().catch(console.error);
+                    }}
+                  >
+                    Logout
+                  </Button>
+              </li>
+            </>
+          )}
+          { !isLoggedIn && 
+              <Button 
                 onClick={() => { 
-                  signOut().catch(console.error);
+                  signIn().catch(console.error);
                 }}
               >
-                Logout
+                Login
               </Button>
-          </li>
-        </>
-      )}
-      { !isLoggedIn && 
-          <Button 
-            onClick={() => { 
-              signIn().catch(console.error);
-            }}
-          >
-            Login
-          </Button>
-        }
-    </ul>
-  </header>
+            }
+        </ul>
+      </div>
+    </header>
+  )
 }
 
 export default Header

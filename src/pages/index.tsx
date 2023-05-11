@@ -28,7 +28,6 @@ function HeroBanner() {
   );
 }
 
-
 const HomePage: NextPage = () => {
 
   return (

@@ -47,6 +47,7 @@ export const generateRouter = createTRPCRouter({
     .input(
       z.object({
         prompt: z.string(),
+        color: z.string(),
       })
     )
     .mutation(async ({ctx, input}) => {
@@ -72,7 +73,9 @@ export const generateRouter = createTRPCRouter({
         })
       }
 
-      const b64EncodedImage = await generateIcon(input.prompt)
+      const finalPrompt = `A book cover with a background color of ${input.color} with a ${input.prompt} overlay`
+
+      const b64EncodedImage = await generateIcon(finalPrompt)
 
       const image = await ctx.prisma.image.create({
         data: {

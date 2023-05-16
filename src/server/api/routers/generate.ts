@@ -51,7 +51,6 @@ export const generateRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ctx, input}) => {
-      console.log("Mutation prompt: ", input.prompt)
       const { count } = await ctx.prisma.user.updateMany({
         where: {
           id: ctx.session.user.id,
@@ -77,7 +76,7 @@ export const generateRouter = createTRPCRouter({
 
       const b64EncodedImage = await generateIcon(finalPrompt)
 
-      const image = await ctx.prisma.image.create({
+      const cover = await ctx.prisma.cover.create({
         data: {
           prompt: input.prompt,
           userId: ctx.session.user.id,
@@ -87,7 +86,7 @@ export const generateRouter = createTRPCRouter({
       await s3.putObject({
         Bucket: BUCKET_NAME,
         Body: Buffer.from(b64EncodedImage!, "base64"),
-        Key: image.id, 
+        Key: cover.id, 
 
         ContentEncoding: "base64",
         ContentType: "image/png"
@@ -97,7 +96,7 @@ export const generateRouter = createTRPCRouter({
 
 
       return {
-        imageLink: `https://${BUCKET_NAME}.s3.amazonaws.com/${image.id}`,
+        imageLink: `https://${BUCKET_NAME}.s3.amazonaws.com/${cover.id}`,
       }
     })
 });

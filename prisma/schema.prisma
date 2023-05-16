@@ -56,10 +56,10 @@ model User {
     credits       Int       @default(5)
     accounts      Account[]
     sessions      Session[]
-    images        Image[]
+    covers        Cover[]
 }
 
-model Image {
+model Cover {
     id            String    @id @default(cuid())
     prompt        String?
     User          User?     @relation(fields: [userId], references: [id])

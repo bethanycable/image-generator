@@ -14,10 +14,16 @@ function Header () {
     <header className="dark:bg-gray-800">
       <div className="container mx-auto flex justify-between items-center h-16 px-4">
         <PrimaryLink href="/">Bs Cover Generator</PrimaryLink>
-        <ul>
+        <ul className="flex gap-4">
           <li>
             <PrimaryLink href="/generate">Generate</PrimaryLink>
           </li>
+          { isLoggedIn && (
+            <li>
+              <PrimaryLink href="/collection">Collection</PrimaryLink>
+            </li>
+            )
+          }
         </ul>
         <ul className="flex gap-4">
           {isLoggedIn && (

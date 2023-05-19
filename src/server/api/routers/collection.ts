@@ -1,6 +1,7 @@
 import {
   createTRPCRouter,
   protectedProcedure,
+  publicProcedure,
 } from "~/server/api/trpc";
 
 export const collectionsRouter = createTRPCRouter({
@@ -13,5 +14,15 @@ export const collectionsRouter = createTRPCRouter({
       });
 
       return covers;
-    })
+    }),
+  getCommunityCovers: publicProcedure
+    .query(async ({ ctx }) => {
+      const covers = await ctx.prisma.cover.findMany({
+        take: 50,
+        orderBy: {
+          createdAt: 'desc'
+        }
+      })
+      return covers
+    }),
 });

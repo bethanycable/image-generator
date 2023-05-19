@@ -18,6 +18,9 @@ function Header () {
           <li>
             <PrimaryLink href="/generate">Generate</PrimaryLink>
           </li>
+          <li>
+            <PrimaryLink href="/community">Community</PrimaryLink>
+          </li>
           { isLoggedIn && (
             <li>
               <PrimaryLink href="/collection">Collection</PrimaryLink>

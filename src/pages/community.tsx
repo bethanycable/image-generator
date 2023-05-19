@@ -4,18 +4,18 @@ import Head from "next/head";
 import Image from "next/image";
 import { api } from "~/utils/api";
 
-const CollectionPage: NextPage = () => {
-  const covers = api.collection.getCollections.useQuery();
+const CommunityPage: NextPage = () => {
+  const covers = api.collection.getCommunityCovers.useQuery();
 
   return (
     <>
       <Head>
-        <title>Your Book Covers</title>
+        <title>Community Icons</title>
         <meta name="description" content="Your book covers" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="container mx-auto flex min-h-screen flex-col mt-24 px-8 gap-4">
-        <h1 className="text-4xl">Your Book Covers</h1>
+        <h1 className="text-4xl">Community Icons</h1>
         <ul className="grid gap-4 grid-cols-2 sm:grid-cols-4 md:grid-cols-6">
             {
               covers.data?.map((cover: Cover)=> (
@@ -36,4 +36,4 @@ const CollectionPage: NextPage = () => {
   );
 };
 
-export default CollectionPage;
+export default CommunityPage;

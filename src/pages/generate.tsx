@@ -21,21 +21,23 @@ const colors = [
 const GeneratePage: NextPage = () => {
   const [form, setForm] = useState({
     prompt: "",
-    color: ""
+    color: "",
+    numberOfCovers: "1",
   });
-  const [imageUrl, setImageUrl] = useState('')
+  const [imagesUrl, setImagesUrl] = useState<{imageLink: string }[]>([])
 
   const generateIcon = api.generate.generateIcon.useMutation({
     onSuccess(data) {
-      if(!data.imageLink) return;
-      setImageUrl(data.imageLink);
+      setImagesUrl(data);
     }
   })
 
   function handleFormSubmit(e: React.FormEvent) {
     e.preventDefault()
-    generateIcon.mutate(form);
-    // setForm((prevForm) => ({...prevForm, prompt: ""}));
+    generateIcon.mutate({
+      ...form,
+      numberOfCovers: parseInt(form.numberOfCovers)
+    });
   }
 
   function updateForm(key: string) {
@@ -71,12 +73,13 @@ const GeneratePage: NextPage = () => {
           </FormGroup>
 
           <h2 className="text-xl">
-            2. Describe what you want your cover to look like.
+            2. Pick a color you would like the background of your cover to be.
           </h2>
           <FormGroup className="grid grid-cols-4 mb-12">
             {colors.map(color => (
               <label key={color} className="flex gap-2 text-l">
                 <input 
+                  // required
                   type="radio" 
                   name={color} 
                   value={color}
@@ -86,18 +89,23 @@ const GeneratePage: NextPage = () => {
                 {color}
               </label>
             ))}
-            
           </FormGroup>
 
-          {/* <h2 className="text-l">1. Describe what you want your cover to look like.</h2>
+          <h2 className="text-l">
+            3. Pick how many versions of the cover you want.
+          </h2>
           <FormGroup>
-            <label>Prompt:</label>
-            <Input 
-              value={form.prompt}
-              onChange={updateForm("prompt")}
-            />
+              <label className="">Number of covers: (Max 10 covers at a time)</label>
+              <Input 
+                inputMode="numeric"
+                pattern="[1-9]|10"
+                type="number"
+                required
+                value={form.numberOfCovers}
+                onChange={updateForm("numberOfCovers")}
+                />
           </FormGroup>
-
+{/* 
           <h2 className="text-l">1. Describe what you want your cover to look like.</h2>
           <FormGroup>
             <label>Prompt:</label>
@@ -115,23 +123,25 @@ const GeneratePage: NextPage = () => {
           </Button>
         </form>
 
-        { imageUrl && 
+        { imagesUrl.length > 0 && 
           <>
             <h2 className="text-l">
               Your Book Covers:
             </h2>
             <section className="grid grid-cols-4 gap-4 mb-12">
-              <Image
-                src={imageUrl} 
-                alt="ai generated image"
-                width="150"
-                height="150"
-              />
+              {imagesUrl.map(({imageLink}) => (
+                  <Image
+                    key={imageLink}
+                    src={imageLink} 
+                    alt="ai generated image"
+                    width="150"
+                    height="150"
+                  />
+                ))
+              }
             </section>
-
           </>   
-        }
-        
+        }  
       </main>
     </>
   );

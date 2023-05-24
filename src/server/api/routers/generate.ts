@@ -26,19 +26,21 @@ const configuration = new Configuration ({
 
 const openai = new OpenAIApi(configuration)
 
-async function generateIcon(prompt: string): Promise<string | undefined> { //This will take an array of string urls eventually
+async function generateIcon(
+  prompt: string, 
+  numberOfCovers = 1
+): Promise<string[]> { //This will take an array of string urls eventually
   if(env.DALLE_MOCK === "true") {
-    // return "https://images.pexels.com/photos/381739/pexels-photo-381739.jpeg?cs=srgb&dl=pexels-sevenstorm-juhaszimrus-381739.jpg&fm=jpg"
-    return b64Image;
+    return new Array<string>(numberOfCovers).fill(b64Image);
   } else {
     const response = await openai.createImage({
       prompt,
-      n: 1,
+      n: numberOfCovers,
       size: "512x512",
       response_format: "b64_json",
     });
 
-    return response.data.data[0]?.b64_json;
+    return response.data.data?.map((result) => result.b64_json || "");
   }
 }
 
@@ -48,6 +50,7 @@ export const generateRouter = createTRPCRouter({
       z.object({
         prompt: z.string(),
         color: z.string(),
+        numberOfCovers:z.number().min(1).max(10)
       })
     )
     .mutation(async ({ctx, input}) => {
@@ -74,29 +77,37 @@ export const generateRouter = createTRPCRouter({
 
       const finalPrompt = `A book cover with a background color of ${input.color} with a ${input.prompt} overlay`
 
-      const b64EncodedImage = await generateIcon(finalPrompt)
+      const b64EncodedImages = await generateIcon(
+        finalPrompt, 
+        input.numberOfCovers
+      )
 
-      const cover = await ctx.prisma.cover.create({
-        data: {
-          prompt: input.prompt,
-          userId: ctx.session.user.id,
-        },
+      const createdCovers = await Promise.all(b64EncodedImages.map( async (image) => {
+        const cover = await ctx.prisma.cover.create({
+          data: {
+            prompt: input.prompt,
+            userId: ctx.session.user.id,
+          },
+        })
+
+        await s3.putObject({
+          Bucket: BUCKET_NAME,
+          Body: Buffer.from(image, "base64"),
+          Key: cover.id, 
+
+          ContentEncoding: "base64",
+          ContentType: "image/png"
+        }).promise();
+
+        return cover;
       })
+    );
+      
 
-      await s3.putObject({
-        Bucket: BUCKET_NAME,
-        Body: Buffer.from(b64EncodedImage!, "base64"),
-        Key: cover.id, 
-
-        ContentEncoding: "base64",
-        ContentType: "image/png"
-      }).promise();
-
-
-
-
-      return {
-        imageLink: `https://${BUCKET_NAME}.s3.amazonaws.com/${cover.id}`,
-      }
+      return createdCovers.map(cover => {
+        return {
+          imageLink: `https://${BUCKET_NAME}.s3.amazonaws.com/${cover.id}`,
+        }
+      });
     })
 });

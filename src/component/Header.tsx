@@ -35,7 +35,7 @@ function Header () {
           {isLoggedIn && (
             <>
             <div className="flex items-center">
-              Credits remaining: ${credits.data}
+              Credits remaining: {credits.data}
             </div>
               <li>
                 <Button 

@@ -18,22 +18,48 @@ const colors = [
   'black'
 ]
 
+const shapes = [
+  'square',
+  'circle',
+  'rounded',
+]
+
+const styles = [
+  'claymorphic',
+  '3D rendered',
+  'pixelated',
+  'illustrated',
+  'color pencil',
+  'digital art',
+  'abstract painting',
+  'watercolor drawing',
+  'other'
+]
+
 const GeneratePage: NextPage = () => {
   const [form, setForm] = useState({
     prompt: "",
     color: "",
     numberOfCovers: "1",
+    shape: "",
+    style: ""
   });
   const [imagesUrl, setImagesUrl] = useState<{imageLink: string }[]>([])
+  const [error, setError] = useState("");
 
   const generateIcon = api.generate.generateIcon.useMutation({
     onSuccess(data) {
       setImagesUrl(data);
+    },
+    onError(error) {
+      console.log(error);
+      setError(error.message);
     }
   })
 
   function handleFormSubmit(e: React.FormEvent) {
     e.preventDefault()
+    setError("")
     generateIcon.mutate({
       ...form,
       numberOfCovers: parseInt(form.numberOfCovers)
@@ -45,7 +71,7 @@ const GeneratePage: NextPage = () => {
       setForm({
         ...form,
         [key]: e.target.value
-      });
+      })
     }
   }
 
@@ -79,7 +105,6 @@ const GeneratePage: NextPage = () => {
             {colors.map(color => (
               <label key={color} className="flex gap-2 text-l">
                 <input 
-                  // required
                   type="radio" 
                   name={color} 
                   value={color}
@@ -91,10 +116,10 @@ const GeneratePage: NextPage = () => {
             ))}
           </FormGroup>
 
-          <h2 className="text-l">
+          <h2 className="text-xl">
             3. Pick how many versions of the cover you want.
           </h2>
-          <FormGroup>
+          <FormGroup className="mb-12">
               <label className="">Number of covers: (Max 10 covers at a time)</label>
               <Input 
                 inputMode="numeric"
@@ -105,15 +130,56 @@ const GeneratePage: NextPage = () => {
                 onChange={updateForm("numberOfCovers")}
                 />
           </FormGroup>
-{/* 
-          <h2 className="text-l">1. Describe what you want your cover to look like.</h2>
-          <FormGroup>
-            <label>Prompt:</label>
+
+          <h2 className="text-xl">
+            4. Pick a shape.
+          </h2>
+          <FormGroup className="grid grid-cols-4 mb-12">
+            {shapes.map(shape => (
+              <label key={shape} className="flex gap-2 text-l">
+                <input 
+                  type="radio" 
+                  name={shape} 
+                  value={shape}
+                  checked={shape === form.shape}
+                  onChange={() => setForm((prevForm) => ({ ...prevForm, shape }))}
+                  ></input>
+                {shape}
+              </label>
+            ))}
+          </FormGroup>
+
+          <h2 className="text-xl">
+            5. Pick a style you would like your cover to be in.
+          </h2>
+          <FormGroup className="grid grid-cols-4 mb-12">
+            {styles.map(style => (
+              <label key={style} className="flex gap-2 text-l">
+                <input 
+                  type="radio" 
+                  name={style} 
+                  value={style}
+                  checked={style === form.style}
+                  onChange={() => setForm((prevForm) => ({ ...prevForm, style }))}
+                  ></input>
+                {style}
+              </label>
+            ))}
+          </FormGroup>
+            {/* TODO: Allow user to type in their own style when other option is checked */}
+          {form.style === "other" && (
             <Input 
-              value={form.prompt}
-              onChange={updateForm("prompt")}
+              value={form.style}
+              required
+              onChange={updateForm("style")}
             />
-          </FormGroup> */}
+          )}
+
+          {error && (
+            <div className="bg-red-500 text-white font-bold text-center p-4  rounded">
+              {error}
+            </div>
+          )}
 
           <Button 
             isLoading={generateIcon.isLoading}
@@ -134,8 +200,8 @@ const GeneratePage: NextPage = () => {
                     key={imageLink}
                     src={imageLink} 
                     alt="ai generated image"
-                    width="150"
-                    height="150"
+                    width="256"
+                    height="256"
                   />
                 ))
               }

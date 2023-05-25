@@ -50,7 +50,9 @@ export const generateRouter = createTRPCRouter({
       z.object({
         prompt: z.string(),
         color: z.string(),
-        numberOfCovers:z.number().min(1).max(10)
+        numberOfCovers:z.number().min(1).max(10),
+        shape: z.string(),
+        style: z.string(),
       })
     )
     .mutation(async ({ctx, input}) => {
@@ -58,12 +60,12 @@ export const generateRouter = createTRPCRouter({
         where: {
           id: ctx.session.user.id,
           credits: {
-            gte: 1,
+            gte: input.numberOfCovers,
           }
         },
         data: {
           credits: {
-            decrement: 1,
+            decrement: input.numberOfCovers,
           }
         }
       })
@@ -75,7 +77,7 @@ export const generateRouter = createTRPCRouter({
         })
       }
 
-      const finalPrompt = `A book cover with a background color of ${input.color} with a ${input.prompt} overlay`
+      const finalPrompt = `A book cover with a background color of ${input.color} with a ${input.shape} ${input.prompt} overlay in a style of ${input.style}`
 
       const b64EncodedImages = await generateIcon(
         finalPrompt, 
